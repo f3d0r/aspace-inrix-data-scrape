@@ -1,7 +1,6 @@
 const puppeteer = require('puppeteer');
 var fs = require('fs');
-const emitter = new EventEmitter()
-emitter.setMaxListeners(100);
+process.setMaxListeners(0);
 
 var lineReader = require('readline').createInterface({
     input: fs.createReadStream('parking_id_unique_list.txt')
