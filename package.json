@@ -1,0 +1,32 @@
+{
+  "name": "aspace_inrix_data_scrape",
+  "version": "1.0.0",
+  "description": "aspace, Inc. - INRIX Data Scraper",
+  "main": "app.js",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2",
+    "count-lines-in-file": "^1.1.0",
+    "neek": "^1.1.1",
+    "puppeteer": "^1.8.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
+    "scrape": "^0.2.3",
+    "scrape-it": "^5.0.5",
+    "scraperjs": "^1.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/aspace/inrix-data-scrape.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/aspace/inrix-data-scrape/issues"
+  },
+  "homepage": "https://gitlab.com/aspace/inrix-data-scrape#readme"
+}
