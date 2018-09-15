@@ -14,7 +14,7 @@ startScript()
 let scrape = async (pageIndex, ip, port) => {
     const browser = await puppeteer.launch({
         ignoreHTTPSErrors: true,
-        args: ['--proxy-server = socks4: //' + ip + ': ' + port]
+        args: ['--proxy-server=https://' + ip + ':' + port]
     });
 
     const page = await browser.newPage();
@@ -117,7 +117,7 @@ let scrape = async (pageIndex, ip, port) => {
 let scrape2 = async (pageIndex, ip, port) => {
     const browser = await puppeteer.launch({
         ignoreHTTPSErrors: true,
-        args: ['--proxy-server = socks4: //' + ip + ': ' + port]
+        args: ['--proxy-server=https://' + ip + ':' + port]
     });
 
     const page = await browser.newPage();
