@@ -12,7 +12,7 @@ var inrixIDs = undefined
 startScript()
 
 let scrape = async (pageIndex, proxy) => {
-    console.log(pageIndex)
+    console.log(proxy + " <---> " + pageIndex);
     const browser = await puppeteer.launch({
         ignoreHTTPSErrors: true,
         args: ['--proxy-server=https=' + proxy]
@@ -85,6 +85,7 @@ let scrape = async (pageIndex, proxy) => {
                 info_table[i][j] = info_table[i][j].trim();
             }
         }
+        z
 
         var extra_info = [];
         for (var i = 0; i < info_table.length; i++) {
@@ -160,28 +161,16 @@ function getRandomProxy() {
 
 function readAndPopulateDatabase() {
     inrixIDs.forEach(function (currentID) {
-        getInrixData(currentID, function(responses) {
-            console.log("SUCCESS!");
+        getInrixData(currentID, function (responses) {
             console.log(responses);
-        }, function(error) {
-            console.log("ERROR1 : " + error)
-            getInrixData(currentID, function(responses) {
-                console.log("SUCCESS!");
-                console.log(responses);
-            }, function(error) {
-                console.log("ERROR2 : " + error)
-                getInrixData(currentID, function(responses) {
-                    console.log("SUCCESS!");
-                    console.log(responses);
-                }, function(error) {
-                    console.log("ERROR3 : " + error)
-                });
-            });
         });
     });
 }
 
-function getInrixData(pageIndex, successCB, failCB) {
+function getInrixData(pageIndex, successCB, failCB = function (errorInfo) {
+    console.log("SOME ERROR: " + errorInfo);
+    getInrixData(pageIndex, successCB);
+}) {
     var reqs = [scrape(pageIndex, getRandomProxy()), scrape2(pageIndex, getRandomProxy())]
     Promise.all(reqs)
         .then(function (responses) {
@@ -211,6 +200,6 @@ function getInrixData(pageIndex, successCB, failCB) {
             // console.log('-----------------------------------');
             successCB(responses);
         }).catch(function (error) {
-            failCB("ERROR : " + error);
+            failCB(error);
         });
 }
