@@ -4,24 +4,24 @@ const puppeteer = require('puppeteer');
 var fs = require('fs');
 var lineByLineReader = require('line-by-line');
 
-const localProxyFileName = "proxy_list.json";
+const localProxyFileName = "proxy_list.txt";
 const localIDListFileName = "parking_id_test.txt";
 
-var numProxies = undefined;
+var proxies = undefined;
+var inrixIDs = undefined
 
 startScript()
 
-let scrape = async (pageIndex, ip, port) => {
+let scrape = async (pageIndex, proxy) => {
+    console.log(pageIndex)
     const browser = await puppeteer.launch({
         ignoreHTTPSErrors: true,
-        args: ['--proxy-server=https://' + ip + ':' + port]
+        args: ['--proxy-server=https=' + proxy]
     });
 
     const page = await browser.newPage();
     await page.goto('https://www.parkme.com/lot/' + pageIndex);
-    console.log('socks4: //' + ip + ': ' + port)
-    console.log('https://www.parkme.com/lot/' + pageIndex);
-    await page.waitForSelector('body');
+    await page.waitForSelector('#lot-header-info');
 
     const result = await page.evaluate(() => {
         var pretty_name = document.querySelector('[itemprop=name] > h1').innerHTML;
@@ -114,15 +114,15 @@ let scrape = async (pageIndex, ip, port) => {
     return result;
 };
 
-let scrape2 = async (pageIndex, ip, port) => {
+let scrape2 = async (pageIndex, proxy) => {
     const browser = await puppeteer.launch({
         ignoreHTTPSErrors: true,
-        args: ['--proxy-server=https://' + ip + ':' + port]
+        args: ['--proxy-server=https=' + proxy]
     });
 
     const page = await browser.newPage();
     await page.goto('https://www.parkme.com/lot/' + pageIndex + '/graph/');
-    await page.waitForSelector('body');
+    await page.waitForSelector('#donut');
 
     const result = await page.evaluate(() => {
         let current_raw = document.querySelector('#donut > svg > g > text.small').innerHTML;
@@ -139,52 +139,79 @@ let scrape2 = async (pageIndex, ip, port) => {
     return result;
 };
 
-function getRandomProxy(filename, cb) {
-    fs.readFile(filename, function read(err, data) {
+function startScript() {
+    fs.readFile(localProxyFileName, 'utf8', function read(err, data) {
         if (err) {
             throw err;
         }
-        parsedProxies = JSON.parse(data);
-        var randomProxyNum = (Math.floor(Math.random() * numProxies) + 1).toString();
-        randomProxyInfo = parsedProxies[randomProxyNum];
-        return cb(randomProxyInfo.ip, randomProxyInfo.port);
+        proxies = data.split("\n");
+        fs.readFile(localIDListFileName, 'utf8', function read(err, data2) {
+            if (err) {
+                throw err;
+            }
+            inrixIDs = data2.split("\n");
+            readAndPopulateDatabase();
+        });
     });
 }
 
-function startScript() {
-    fs.readFile(localProxyFileName, function read(err, data) {
-        if (err) {
-            throw err;
-        }
-        var parsedIntResult = Object.keys(JSON.parse(data)).map(function (x) {
-            return parseInt(x, 10);
-        });
-        sortedNums = parsedIntResult.sort((a, b) => a - b);
-        numProxies = Math.min(sortedNums[sortedNums.length - 1], sortedNums.length);
-        readAndPopulateDatabase();
-    });
+function getRandomProxy() {
+    return proxies[Math.floor(Math.random() * proxies.length)];
 }
 
 function readAndPopulateDatabase() {
-    lr = new lineByLineReader(localIDListFileName);
-    lr.on('line', function (line) {
-        var pageIndex = line;
-        getRandomProxy(localProxyFileName, function (ip, port) {
-            scrape(pageIndex, ip, port).then((response) => {
-                    scrape2(pageIndex, ip, port).then((response2) => {
-                            response['current_occ'] = response2.current_occ;
-                            response['current_cap'] = response2.current_cap;
-                            console.log(response);
-                        })
-                        .catch((error) => {
-                            console.log("\tERROR2: " + JSON.stringify(error));
-                        });
-                })
-                .catch((error) => {
-                    console.log("\tERROR1: " + JSON.stringify(error));
+    inrixIDs.forEach(function (currentID) {
+        getInrixData(currentID, function(responses) {
+            console.log("SUCCESS!");
+            console.log(responses);
+        }, function(error) {
+            console.log("ERROR1 : " + error)
+            getInrixData(currentID, function(responses) {
+                console.log("SUCCESS!");
+                console.log(responses);
+            }, function(error) {
+                console.log("ERROR2 : " + error)
+                getInrixData(currentID, function(responses) {
+                    console.log("SUCCESS!");
+                    console.log(responses);
+                }, function(error) {
+                    console.log("ERROR3 : " + error)
                 });
+            });
         });
-    }).on('end', function () {
-        console.log("DONE READING FILE!");
     });
+}
+
+function getInrixData(pageIndex, successCB, failCB) {
+    var reqs = [scrape(pageIndex, getRandomProxy()), scrape2(pageIndex, getRandomProxy())]
+    Promise.all(reqs)
+        .then(function (responses) {
+            // response['current_occ'] = response2.current_occ;
+            // response['current_cap'] = response2.current_cap;
+            // console.log('-----------------------------------');
+            // console.log(response.inrix_index);
+            // console.log(response.pretty_name);
+            // console.log(response.lot_type);
+            // var pricing = "";
+            // response.parsedPricing.forEach(function (currentPricing) {
+            //     pricing += currentPricing[0] + "||" + currentPricing[1] + ";";
+            // });
+            // console.log(pricing);
+            // var extraInfo = "";
+            // response.extra_info.forEach(function (currentPricing) {
+            //     extraInfo += currentPricing[0] + "||" + currentPricing[1] + ";";
+            // });
+            // console.log(extraInfo);
+            // var amenities = "";
+            // response.amenities.forEach(function (currentPricing) {
+            //     amenities += currentPricing + ";"
+            // });
+            // console.log(amenities);
+            // console.log(response.current_occ);
+            // console.log(response.current_cap);
+            // console.log('-----------------------------------');
+            successCB(responses);
+        }).catch(function (error) {
+            failCB("ERROR : " + error);
+        });
 }
