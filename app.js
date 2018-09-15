@@ -2,7 +2,6 @@ process.setMaxListeners(0);
 
 const puppeteer = require('puppeteer');
 var fs = require('fs');
-var lineByLineReader = require('line-by-line');
 
 const localProxyFileName = "proxy_list.txt";
 const localIDListFileName = "parking_id_test.txt";

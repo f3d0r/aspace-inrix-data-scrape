@@ -4,16 +4,8 @@
   "description": "aspace, Inc. - INRIX Data Scraper",
   "main": "app.js",
   "dependencies": {
-    "axios": "^0.18.0",
-    "cheerio": "^1.0.0-rc.2",
-    "count-lines-in-file": "^1.1.0",
     "neek": "^1.1.1",
-    "puppeteer": "^1.8.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.2",
-    "scrape": "^0.2.3",
-    "scrape-it": "^5.0.5",
-    "scraperjs": "^1.2.0"
+    "puppeteer": "^1.8.0"
   },
   "devDependencies": {},
   "scripts": {
