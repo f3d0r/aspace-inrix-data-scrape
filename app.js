@@ -3,7 +3,7 @@ process.setMaxListeners(0);
 const puppeteer = require('puppeteer');
 var fs = require('fs');
 
-const localProxyFileName = "proxy_list.txt";
+const localProxyFileName = "exported-proxies.txt";
 const localIDListFileName = "parking_id_test.txt";
 
 var proxies = undefined;
