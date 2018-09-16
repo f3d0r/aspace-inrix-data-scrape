@@ -6,21 +6,18 @@ var fs = require('fs');
 const localProxyFileName = "exported-proxies.txt";
 const localIDListFileName = "parking_id_test.txt";
 
-var proxies = undefined;
-var inrixIDs = undefined
-
 startScript()
 
 let scrape = async (pageIndex, proxy) => {
-    console.log(proxy + " <---> " + pageIndex);
+    console.log(proxy)
     const browser = await puppeteer.launch({
         ignoreHTTPSErrors: true,
-        args: ['--proxy-server=https=' + proxy]
+        args: ['\'--proxy-server=https=' + proxy + '\'']
     });
 
     const page = await browser.newPage();
     await page.goto('https://www.parkme.com/lot/' + pageIndex);
-    await page.waitForSelector('#lot-header-info');
+    await page.waitForSelector('body');
 
     const result = await page.evaluate(() => {
         var pretty_name = document.querySelector('[itemprop=name] > h1').innerHTML;
@@ -85,7 +82,6 @@ let scrape = async (pageIndex, proxy) => {
                 info_table[i][j] = info_table[i][j].trim();
             }
         }
-        z
 
         var extra_info = [];
         for (var i = 0; i < info_table.length; i++) {
@@ -117,12 +113,12 @@ let scrape = async (pageIndex, proxy) => {
 let scrape2 = async (pageIndex, proxy) => {
     const browser = await puppeteer.launch({
         ignoreHTTPSErrors: true,
-        args: ['--proxy-server=https=' + proxy]
+        args: ['\'--proxy-server=https=' + proxy + '\'']
     });
 
     const page = await browser.newPage();
     await page.goto('https://www.parkme.com/lot/' + pageIndex + '/graph/');
-    await page.waitForSelector('#donut');
+    await page.waitForSelector('body');
 
     const result = await page.evaluate(() => {
         let current_raw = document.querySelector('#donut > svg > g > text.small').innerHTML;
@@ -162,42 +158,20 @@ function getRandomProxy() {
 function readAndPopulateDatabase() {
     inrixIDs.forEach(function (currentID) {
         getInrixData(currentID, function (responses) {
-            console.log(responses);
+            console.log("RESPONSES: ");
+            responses.forEach(function (current) {
+                console.log(current);
+            })
+        }, function (error) {
+            console.log("ERROR: " + error);
         });
     });
 }
 
-function getInrixData(pageIndex, successCB, failCB = function (errorInfo) {
-    console.log("SOME ERROR: " + errorInfo);
-    getInrixData(pageIndex, successCB);
-}) {
+function getInrixData(pageIndex, successCB, failCB) {
     var reqs = [scrape(pageIndex, getRandomProxy()), scrape2(pageIndex, getRandomProxy())]
     Promise.all(reqs)
         .then(function (responses) {
-            // response['current_occ'] = response2.current_occ;
-            // response['current_cap'] = response2.current_cap;
-            // console.log('-----------------------------------');
-            // console.log(response.inrix_index);
-            // console.log(response.pretty_name);
-            // console.log(response.lot_type);
-            // var pricing = "";
-            // response.parsedPricing.forEach(function (currentPricing) {
-            //     pricing += currentPricing[0] + "||" + currentPricing[1] + ";";
-            // });
-            // console.log(pricing);
-            // var extraInfo = "";
-            // response.extra_info.forEach(function (currentPricing) {
-            //     extraInfo += currentPricing[0] + "||" + currentPricing[1] + ";";
-            // });
-            // console.log(extraInfo);
-            // var amenities = "";
-            // response.amenities.forEach(function (currentPricing) {
-            //     amenities += currentPricing + ";"
-            // });
-            // console.log(amenities);
-            // console.log(response.current_occ);
-            // console.log(response.current_cap);
-            // console.log('-----------------------------------');
             successCB(responses);
         }).catch(function (error) {
             failCB(error);
