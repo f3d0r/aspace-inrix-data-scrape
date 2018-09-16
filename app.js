@@ -35,6 +35,12 @@ let scrape = async (pageIndex, proxy) => {
             }
         }
 
+        var addressLineCount = document.querySelector('#lot-header-info > div.module-header-info > div.left > div.module-header-address').childElementCount;
+        var address = "";
+        for (var index = 1; index <= addressLineCount; index++) {
+            address += document.querySelector('#lot-header-info > div.module-header-info > div.left > div.module-header-address > div:nth-child(' + index +')').innerHTML + " ";
+        }
+
         var priceOptionsCount = document.querySelector('#daily > div:nth-child(1) > div > div.module-table-group.module-medium.rates-table').childElementCount;
         var parsedPricing = [];
         for (var index = 1; index <= priceOptionsCount; index++) {
@@ -98,6 +104,7 @@ let scrape = async (pageIndex, proxy) => {
         return {
             pretty_name,
             lot_type,
+            address,
             parsedPricing,
             amenities,
             extra_info
