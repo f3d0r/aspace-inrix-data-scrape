@@ -2,21 +2,24 @@ process.setMaxListeners(0);
 
 const puppeteer = require('puppeteer');
 var fs = require('fs');
-
-const localProxyFileName = "exported-proxies.txt";
-const localIDListFileName = "parking_id_test.txt";
+var rp = require('request-promise');
+const config = require('./config');
+const mapboxAccessToken = config.ACCESS_TOKENS.MAPBOX;
+const localIDListFileName = config.FILES.LOCAL_INRIX_ID_FILE_NAME;
+const localProxyFileName = config.FILES.LOCAL_PROXY_FILE_NAME;
 
 startScript()
 
 let scrape = async (pageIndex, proxy) => {
-    console.log(proxy)
+    console.log(proxy);
     const browser = await puppeteer.launch({
+        headless: false,
         ignoreHTTPSErrors: true,
-        args: ['\'--proxy-server=https=' + proxy + '\'']
+        args: ['--proxy-server=https=' + proxy]
     });
 
     const page = await browser.newPage();
-    await page.goto('https://www.parkme.com/lot/' + pageIndex);
+    await page.goto('http://www.parkme.com/lot/' + pageIndex);
     await page.waitForSelector('body');
 
     const result = await page.evaluate(() => {
@@ -38,7 +41,7 @@ let scrape = async (pageIndex, proxy) => {
         var addressLineCount = document.querySelector('#lot-header-info > div.module-header-info > div.left > div.module-header-address').childElementCount;
         var address = "";
         for (var index = 1; index <= addressLineCount; index++) {
-            address += document.querySelector('#lot-header-info > div.module-header-info > div.left > div.module-header-address > div:nth-child(' + index +')').innerHTML + " ";
+            address += document.querySelector('#lot-header-info > div.module-header-info > div.left > div.module-header-address > div:nth-child(' + index + ')').innerHTML + " ";
         }
 
         var priceOptionsCount = document.querySelector('#daily > div:nth-child(1) > div > div.module-table-group.module-medium.rates-table').childElementCount;
@@ -60,7 +63,9 @@ let scrape = async (pageIndex, proxy) => {
                     .replace("</div", '')
                     .replace('</small>', '')
                     .replace(">", '')
-                    .replace('Add\'l', "Additional");
+                    .replace('class="clear"></div>', '')
+                    .replace('Add\'l', "Additional")
+                    .trim();
             }
             parsedPricing.push(currentPricingOption);
         }
@@ -120,11 +125,11 @@ let scrape = async (pageIndex, proxy) => {
 let scrape2 = async (pageIndex, proxy) => {
     const browser = await puppeteer.launch({
         ignoreHTTPSErrors: true,
-        args: ['\'--proxy-server=https=' + proxy + '\'']
+        args: ['--proxy-server=https=' + proxy]
     });
 
     const page = await browser.newPage();
-    await page.goto('https://www.parkme.com/lot/' + pageIndex + '/graph/');
+    await page.goto('http://www.parkme.com/lot/' + pageIndex + '/graph/');
     await page.waitForSelector('body');
 
     const result = await page.evaluate(() => {
@@ -159,7 +164,8 @@ function startScript() {
 }
 
 function getRandomProxy() {
-    return proxies[Math.floor(Math.random() * proxies.length)];
+    return proxies[proxies.length - 1];
+    // return proxies[Math.floor(Math.random() * proxies.length)];
 }
 
 function readAndPopulateDatabase() {
@@ -176,11 +182,34 @@ function readAndPopulateDatabase() {
 }
 
 function getInrixData(pageIndex, successCB, failCB) {
-    var reqs = [scrape(pageIndex, getRandomProxy()), scrape2(pageIndex, getRandomProxy())]
+    var currProxy = getRandomProxy();
+    var reqs = [scrape(pageIndex, currProxy), scrape2(pageIndex, currProxy)]
     Promise.all(reqs)
         .then(function (responses) {
-            successCB(responses);
+            reqs = [reverseGeo(responses[0].address)]
+            Promise.all(reqs)
+                .then(function (latLngResponses) {
+                    for (var index = 0; index < latLngResponses.length; index++) {
+                        responses[index].coordinates = {};
+                        responses[index].coordinates['lng'] = latLngResponses[index][0];
+                        responses[index].coordinates['lat'] = latLngResponses[index][1];
+                    }
+                    successCB(responses);
+                }).catch(function (error) {
+                    throw error;
+                });
         }).catch(function (error) {
             failCB(error);
+        });
+}
+
+function reverseGeo(address) {
+    var url = "https://api.mapbox.com/geocoding/v5/mapbox.places/" + address + ".json?country=US&access_token=" + mapboxAccessToken;
+    return new rp(url)
+        .then(function (result) {
+            return JSON.parse(result).features[0].center;
+        })
+        .catch(function (err) {
+            throw err;
         });
 }
