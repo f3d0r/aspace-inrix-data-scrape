@@ -4,9 +4,10 @@
   "description": "aspace, Inc. - INRIX Data Scraper",
   "main": "app.js",
   "dependencies": {
+    "fs": "0.0.1-security",
     "neek": "^1.1.1",
+    "path": "^0.12.7",
     "puppeteer": "^1.10.0",
-    "request": "^2.88.0",
     "request-promise": "^4.2.2"
   },
   "devDependencies": {},
