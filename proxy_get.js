@@ -25,7 +25,7 @@ let scrape = async (extraParams) => {
         proxies = [];
         for (var childNum = 1; childNum <= proxiesOnPage; childNum++) {
             var ip = document.querySelector('#content-section > section.proxy > div > table > tbody > tr:nth-child(' + childNum + ') > td.tdl').innerHTML;
-            var port = document.querySelector('#content-section > section.proxy > div > table > tbody > tr:nth-child(' + childNum + ') > td:nth-child(2)').innerHTML
+            var port = document.querySelector('#content-section > section.proxy > div > table > tbody > tr:nth-child(' + childNum + ') > td:nth-child(2)').innerHTML;
 
             proxies.push(ip + ":" + port);
         }
@@ -33,7 +33,7 @@ let scrape = async (extraParams) => {
         return {
             proxies,
             pages
-        }
+        };
     });
 
     browser.close();

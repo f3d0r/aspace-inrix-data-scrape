@@ -16,7 +16,7 @@ lineReader.on('line', function (line) {
     if (line.indexOf("featured_lot_entry") > -1) {
         parsedId = parseFloat(line.substring(line.indexOf("id=\"") + 4, line.indexOf("class") - 2));
         ids += parsedId + "\n";
-        increment++
+        increment++;
     }
 }).on('close', function () {
     fs.appendFile(idFilePath, ids, function (err) {
@@ -26,7 +26,7 @@ lineReader.on('line', function (line) {
             console.log('FILE SUCCESSFULLY SAVED!');
             neek.unique(idFilePath, uniqueIdFilePath, function (result) {
                 console.log(result);
-                
+
                 console.log("TOTAL MATCHING LINES WITH IDS : " + increment);
             });
         }

@@ -6,7 +6,7 @@ var rp = require('request-promise');
 const config = require('./config');
 const localProxyFileName = config.FILES.LOCAL_PROXY_FILE_NAME;
 
-startScript()
+startScript();
 
 let scrape = async (proxy) => {
     const browser = await puppeteer.launch({
@@ -23,11 +23,11 @@ let scrape = async (proxy) => {
 
         return {
             ipFound
-        }
+        };
     });
 
-    result['givenIP'] = proxy.substring(0, proxy.indexOf(":"));
-    result['MATCHING'] = result['givenIP'] == result['ipFound'];
+    result.givenIP = proxy.substring(0, proxy.indexOf(":"));
+    result.MATCHING = result.givenIP == result.ipFound;
 
     browser.close();
     return result;

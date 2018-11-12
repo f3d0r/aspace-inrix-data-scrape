@@ -6,4 +6,4 @@ module.exports = {
     ACCESS_TOKENS: {
         MAPBOX: '***REMOVED***'
     }
-}
+};

@@ -8,7 +8,7 @@ const mapboxAccessToken = config.ACCESS_TOKENS.MAPBOX;
 const localIDListFileName = config.FILES.LOCAL_INRIX_ID_FILE_NAME;
 const localProxyFileName = config.FILES.LOCAL_PROXY_FILE_NAME;
 
-startScript()
+startScript();
 
 let scrape = async (pageIndex, proxy) => {
     console.log(proxy);
@@ -40,13 +40,13 @@ let scrape = async (pageIndex, proxy) => {
 
         var addressLineCount = document.querySelector('#lot-header-info > div.module-header-info > div.left > div.module-header-address').childElementCount;
         var address = "";
-        for (var index = 1; index <= addressLineCount; index++) {
+        for (index = 1; index <= addressLineCount; index++) {
             address += document.querySelector('#lot-header-info > div.module-header-info > div.left > div.module-header-address > div:nth-child(' + index + ')').innerHTML + " ";
         }
 
         var priceOptionsCount = document.querySelector('#daily > div:nth-child(1) > div > div.module-table-group.module-medium.rates-table').childElementCount;
         var parsedPricing = [];
-        for (var index = 1; index <= priceOptionsCount; index++) {
+        for (index = 1; index <= priceOptionsCount; index++) {
             var currentPricingOption = document.querySelector('#daily > div:nth-child(1) > div > div.module-table-group.module-medium.rates-table > div:nth-child(' + index + ')')
                 .innerHTML
                 .replace(/\s\s+/g, '')
@@ -95,7 +95,7 @@ let scrape = async (pageIndex, proxy) => {
         }
 
         var extra_info = [];
-        for (var i = 0; i < info_table.length; i++) {
+        for (i = 0; i < info_table.length; i++) {
             for (var j = 0; j < info_table[i].length; j++) {
                 if (info_table[i][j].trim() != '') {
                     var addedInfo = info_table[i][j].split(" <--> ");
@@ -113,10 +113,10 @@ let scrape = async (pageIndex, proxy) => {
             parsedPricing,
             amenities,
             extra_info
-        }
+        };
     });
 
-    result['inrix_index'] = pageIndex;
+    result.inrix_index = pageIndex;
 
     browser.close();
     return result;
