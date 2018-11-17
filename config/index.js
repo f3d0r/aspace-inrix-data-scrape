@@ -4,5 +4,10 @@ module.exports = {
     },
     ACCESS_TOKENS: {
         MAPBOX: '***REMOVED***'
+    },
+    PROXY: {
+        URL: "***REMOVED***",
+        USERNAME: "***REMOVED***",
+        PASSWORD: "***REMOVED***"
     }
 };

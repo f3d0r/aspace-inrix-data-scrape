@@ -1,5 +1,7 @@
+//GLOBAL IMPORTS
 process.setMaxListeners(0);
 
+//PACKAGE IMPORTS
 const puppeteer = require('puppeteer');
 var fs = require('fs');
 var rp = require('request-promise');
