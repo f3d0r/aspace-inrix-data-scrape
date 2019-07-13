@@ -4,15 +4,15 @@
     "description": "aspace, Inc. - INRIX Data Scraper",
     "main": "app.js",
     "dependencies": {
-        "cheerio": "^1.0.0-rc.2",
-        "csvtojson": "^2.0.8",
+        "cheerio": "^1.0.0-rc.3",
+        "csvtojson": "^2.0.10",
         "fs": "0.0.1-security",
-        "neek": "^1.1.1",
-        "p-limit": "^2.0.0",
+        "neek": "^1.1.2",
+        "p-limit": "^2.2.0",
         "path": "^0.12.7",
-        "puppeteer": "^1.10.0",
+        "puppeteer": "^1.18.1",
         "readline": "^1.3.0",
-        "request-promise": "^4.2.2"
+        "request-promise": "^4.2.4"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
